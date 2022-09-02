@@ -1,13 +1,13 @@
 ># Algoritmos 2022 - 2 ( Grupo 2 )
 >
 >## Taller 1
->Se implementó el método de Bisección de Bolzano para calcular, en base a un modelo o función y un intervalo predefinido, una raiz de la función en dicho intervalo dividido el minimo valor de f aceptado para retornar
+>Se implementó el método de Bisección de Bolzano para calcular, en base a un modelo o función y un intervalo predefinido
 >
 >### Complejidad de búsqueda:
 >
 
 ```python
-def roots_by_bisection( model ): # O( log n ), con n siendo el ancho del intervalo (base 2)
+def roots_by_bisection( model ): # O( log n ), con n siendo el ancho del intervalo (base 2), una raiz de la función en dicho intervalo dividido el minimo valor de f aceptado para retornar
 
   MIN_Y_VALUE = 1E-4  		# O(1)
   x0 = 0              		# O(1)
@@ -19,7 +19,7 @@ def roots_by_bisection( model ): # O( log n ), con n siendo el ancho del interva
   fx1 = model( x1 )          	# O(1)
   fxm = model( x_middle )    	# O(1)
 
-  while abs(fxm) > MIN_Y_VALUE: # O( log n)
+  while abs(fxm) > MIN_Y_VALUE: # O( log n )
 
     if fxm * fx0 < 0:           # O(1)
 
