@@ -7,8 +7,8 @@
 >
 
 ```python
-def roots_by_bisection( model ): # O( log n ), con n siendo el ancho del intervalo (base 2), una raiz de la función en dicho intervalo dividido el minimo valor de f aceptado para retornar
-
+def roots_by_bisection( model ): # O( log n ),con n siendo el ancho del intervalo(base 2),una raiz de la 
+				 # función en dicho intervalo dividido el minimo valor de f aceptado para retornar
   MIN_Y_VALUE = 1E-4  		# O(1)
   x0 = 0              		# O(1)
   x1 = 1000           		# O(1)
