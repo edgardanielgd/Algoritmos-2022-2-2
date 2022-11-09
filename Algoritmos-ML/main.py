@@ -1,5 +1,13 @@
-from AlgorithmsML.models.mnist_fashion_model import *
-from AlgorithmsML.models.mnist_model import *
+#from AlgorithmsML.models.mnist_fashion_model import *
+#from AlgorithmsML.models.mnist_model import *
+from AlgorithmsML.models.cifar10_model import *
+#from AlgorithmsML.GUI.defaultGUI import *
+
+"""
+gui = GUInterface(
+  28, 28
+)
+"""
 
 """
 model = MNISTModel()
@@ -16,6 +24,7 @@ print(
 )
 """
 
+"""
 model = MNISTFashionModel()
 model.load(
   [
@@ -29,4 +38,20 @@ print(
     1007
   )
 )
-#from models import mnist_model
+"""
+
+model = CIFARModel()
+model.train(
+  1000, 3,
+  [
+    "testconv12.txt",
+    "testconv122.txt",
+    "testsoft2.txt"
+  ]
+)
+
+print(
+  model.testByIndex(
+    1008
+  )
+)

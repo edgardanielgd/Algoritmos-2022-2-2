@@ -100,4 +100,4 @@ class MNISTFashionModel:
       INPUT_MATRIX_ONE_CHANNEL
     )
     self.inputLayer.passDataRecursive( )
-    return orderWinners()
+    return self.orderWinners()

@@ -4,6 +4,7 @@ from AlgorithmsML.graph.Layer import *
 INPUT_EMBEDED_PIXELS = 1
 INPUT_MATRIX_PIXELS = 2
 INPUT_MATRIX_ONE_CHANNEL = 3
+INPUT_MATRIX_ONE_CHANNEL_PER_FEATURE = 4
 
 class InputLayer( Layer ):
   def __init__ ( self, w, h, l = 3 ):
@@ -35,6 +36,7 @@ class InputLayer( Layer ):
                 irow * self.dimensions[1] + icol
               ) * self.dimensions[2] + isub
             ].value = pixels[ irow ][ icol ][ isub ] / 255 - 0.5
+            
     elif mode == INPUT_MATRIX_ONE_CHANNEL:
 
       for irow in range( self.dimensions[1] ):
@@ -47,3 +49,14 @@ class InputLayer( Layer ):
             ].value = pixels[ irow ] [
               icol + isub
             ]/ 255 - 0.5
+
+    elif mode == INPUT_MATRIX_ONE_CHANNEL_PER_FEATURE :
+      
+      for irow in range( self.dimensions[1] ):
+        for icol in range( self.dimensions[0] ):
+          for isub in range( self.dimensions[2] ):
+            self.nodes[
+              (
+                irow * self.dimensions[1] + icol
+              ) * self.dimensions[2] + isub
+            ].value = pixels[ isub ][ irow ][ icol ] / 255 - 0.5
