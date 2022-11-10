@@ -100,7 +100,7 @@ class ConvolutionalLayer2 ( Layer ):
                 # If filters were passed, use theirs weight
     
                 new_weight = Weight( self.raw_filters [
-                  isubfeat * sublayer_features + ifilter
+                  ifilter * sublayer_features + isubfeat
                 ] [ xfilter ] [ yfilter ] )
                   
               else:
@@ -117,7 +117,7 @@ class ConvolutionalLayer2 ( Layer ):
           self.filters.append( filter )
 
       # gets ( ifilter, isubfeat )
-      filter_origin = lambda x : ( x[1] * sublayer_features) + x[0]
+      filter_origin = lambda x : ( x[0] * sublayer_features) + x[1]
     else:
       # gets ( ifilter, isubfeat )
       filter_origin = lambda x : x[0]
@@ -139,6 +139,7 @@ class ConvolutionalLayer2 ( Layer ):
                   iter_y = iter_y_filter + y_offset
                   iter_x = iter_x_filter + x_offset
                   # Relate node to its filters-based value calculation neighbors
+                  
                   
                   weight = self.filters [ 
                     filter_origin(

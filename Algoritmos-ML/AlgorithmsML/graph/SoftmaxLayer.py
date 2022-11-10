@@ -3,33 +3,20 @@ from AlgorithmsML.graph.Layer import *
 import math
 
 class SoftmaxLayer ( Layer ):
-  def __init__(self, flat_count ):
-    super().__init__( [
-      flat_count
-    ] )
-
-    self.biases = []
+  def __init__(self ):
+    super().__init__( 0 )
     
   def onSublayerAdd( self, subLayer ):
     super().onSublayerAdd( subLayer )
-
-    self.num_nodes = self.dimensions[0]
-
-    for i in range( self.num_nodes ):
-      node = Node()
-      neighbors = [
-        Link( 
-          neigh_node,
-          Weight(
-            random() / subLayer.num_nodes 
-          )
-        ) for neigh_node in subLayer.nodes
-      ]
+    self.dimensions = subLayer.dimensions
+    self.num_nodes = subLayer.num_nodes
     
-      node.addPrevNeighbors( neighbors )
-      
+    for inode in range( self.num_nodes ):
+      node = Node()
+      node.addPrevNeighbors(
+        [ Link( subLayer.nodes[ inode ] ) ]
+      )
       self.nodes.append( node )
-      self.biases.append( 0 )
       
   def calculate(self):
     
@@ -39,16 +26,8 @@ class SoftmaxLayer ( Layer ):
     for inode in range( len( self.nodes ) ):
 
       node = self.nodes[ inode ]
-      
-      dot_product = 0
-      
-      for link in node.prev_neighbors:
-        
-        dot_product += link.fromNode.value * link.weight.value
 
-      dot_product += self.biases[ inode ]
-
-      exp_value = math.exp( dot_product )
+      exp_value = math.exp( node.value )
       
       exp_values.append( exp_value )
 
@@ -68,7 +47,7 @@ class SoftmaxLayer ( Layer ):
     prob_i = self.nodes[ label_index ].value
 
     gradient_label = -1 / prob_i
-    gradients_data = []
+    input_gradient = []
     
     for i in range( self.num_nodes ):
 
@@ -90,75 +69,9 @@ class SoftmaxLayer ( Layer ):
           i 
         ] / (self.exp_sum ** 2)
         
-
       out_gradient *= gradient_label
-
-      # Update biases
-      self.biases [i] -= LEARNING_RATE * out_gradient
         
-      gradients_data.append(
+      input_gradient.append(
         out_gradient
       )
-
-      # Gen input gradient (used by previous layer)
-
-    input_gradient = []
-
-    for iprev_node in range( self.prevLayer.num_nodes ):
-      
-      prev_node = self.prevLayer.nodes[ iprev_node ]
-      input_gradient_item = 0
-      
-      for inode in range( self.num_nodes ):
-        
-        node = self.nodes[ inode ]
-        node_gradient = gradients_data[ inode ]
-
-        link_to_prev = node.prev_neighbors[ iprev_node ]
-
-        # Update input gradient item data
-        input_gradient_item += node_gradient * link_to_prev.weight.value
-        
-        # Update weight
-        link_to_prev.weight.updateValue(
-          link_to_prev.weight.value - 
-            LEARNING_RATE * prev_node.value * node_gradient
-        )
-
-      input_gradient.append( input_gradient_item )
-
     return input_gradient
-        
-  def saveData( self, filename ):
-    with open( filename, "w+") as f:
-
-      for inode in range( self.num_nodes ):
-        node = self.nodes[ inode ]
-        for prev_neighbor in node.prev_neighbors:
-          f.write( 
-            str(prev_neighbor.weight.value ) + "\n"
-          )
-        f.write( str(self.biases[ inode ] ) + "\n" )
-        
-  def loadData( self, filename ):
-    with open( filename, "r") as f:
-      lines = f.readlines()
-      index = 0
-
-      for inode in range( self.num_nodes ):
-        node = self.nodes[ inode ]
-        for prev_neighbor in node.prev_neighbors:
-          value = float( lines[ index ] )
-          index += 1
-          prev_neighbor.weight.updateValue( value )
-        
-        value = float( lines[ index ] )
-        index += 1
-        self.biases[ inode ] = value
-      
-        
-        
-    
-    
-
-    

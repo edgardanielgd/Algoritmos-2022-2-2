@@ -42,7 +42,7 @@ print(
 
 model = CIFARModel()
 model.train(
-  1000, 3,
+  10, 3,
   [
     "testconv12.txt",
     "testconv122.txt",

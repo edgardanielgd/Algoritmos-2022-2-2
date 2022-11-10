@@ -5,6 +5,7 @@ from AlgorithmsML.graph.InputLayer import *
 from AlgorithmsML.graph.PoolLayer import *
 from AlgorithmsML.graph.ReluLayer import *
 from AlgorithmsML.graph.SoftmaxLayer import *
+from AlgorithmsML.graph.DenseLayer import *
 
 from keras.datasets import cifar10 # Set de numeros 28 x 28 pixeles
 
@@ -18,28 +19,43 @@ class CIFARModel:
   def __init__(self):
     (self.images, self.labels ), (self.testImages, self.testLabels) = cifar10.load_data()
     
-    self.inputLayer = InputLayer( 32, 32, 1 )
+    self.inputLayer = InputLayer( 32, 32, 3 )
     
-    self.convLayer = ConvolutionalLayer2( [3,3], 32, None, FILTER_PER_FEATURE )
+    self.convLayer = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE )
     self.inputLayer.addSuperLayer( self.convLayer )
 
     self.maxPooling = PoolLayer( [2,2] ) # MaxPool
     self.convLayer.addSuperLayer( self.maxPooling )
 
-    self.relu = ReluLayer() # ReLU Layer
-    self.maxPooling.addSuperLayer( self.relu )
-
-    self.convLayer2 = ConvolutionalLayer2( [3,3], 32, None, FILTER_PER_FEATURE )
-    self.relu.addSuperLayer( self.convLayer2 )
+    self.convLayer2 = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE )
+    self.maxPooling.addSuperLayer( self.convLayer2 )
 
     self.maxPooling2 = PoolLayer( [2,2] ) # MaxPool
     self.convLayer2.addSuperLayer( self.maxPooling2 )
 
+    # self.convLayer3 = ConvolutionalLayer2( [5,5], 1, None, FILTER_PER_FEATURE )
+    # self.maxPooling2.addSuperLayer( self.convLayer3 )
+    # print( self.convLayer3.num_nodes )
+
+    # self.convLayer4 = ConvolutionalLayer2( [5,5], 1, None, FILTER_PER_FEATURE )
+    # self.convLayer3.addSuperLayer( self.convLayer4 )
+    # print( self.convLayer4.num_nodes )
+
+    self.dense1 = DenseLayer( 256 )
+    self.convLayer4.addSuperLayer( self.dense1 )
+    print( self.dense1.num_nodes )
+
     self.relu2 = ReluLayer() # ReLU Layer
     self.maxPooling2.addSuperLayer( self.relu2 )
+    print( self.relu2.num_nodes )
 
-    self.softmax = SoftmaxLayer( 10 ) # Softmax Layer
+    self.dense2 = DenseLayer( 10 )
+    self.relu2.addSuperLayer( self.dense2 )
+    print( self.dense2.num_nodes )
+
+    self.softmax = SoftmaxLayer( ) # Softmax Layer
     self.maxPooling2.addSuperLayer( self.softmax )
+    print( self.softmax.num_nodes )
   
   
   def train( self, ntrains, nepochs, savFiles ):
