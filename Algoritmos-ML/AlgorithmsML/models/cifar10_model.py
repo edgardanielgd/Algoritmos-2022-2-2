@@ -42,11 +42,11 @@ class CIFARModel:
     # print( self.convLayer4.num_nodes )
 
     self.dense1 = DenseLayer( 256 )
-    self.convLayer4.addSuperLayer( self.dense1 )
+    self.maxPooling2.addSuperLayer( self.dense1 )
     print( self.dense1.num_nodes )
 
     self.relu2 = ReluLayer() # ReLU Layer
-    self.maxPooling2.addSuperLayer( self.relu2 )
+    self.dense1.addSuperLayer( self.relu2 )
     print( self.relu2.num_nodes )
 
     self.dense2 = DenseLayer( 10 )
@@ -54,7 +54,7 @@ class CIFARModel:
     print( self.dense2.num_nodes )
 
     self.softmax = SoftmaxLayer( ) # Softmax Layer
-    self.maxPooling2.addSuperLayer( self.softmax )
+    self.dense2.addSuperLayer( self.softmax )
     print( self.softmax.num_nodes )
   
   
