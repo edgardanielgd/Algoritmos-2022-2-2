@@ -1,10 +1,23 @@
 from AlgorithmsML.graph.Base import *
 from AlgorithmsML.graph.Layer import *
 
-class ConvolutionalLayer ( Layer ):
+FILTER_GLOBAL = 1 # If each of given filter(s) should be applied to each sublayer's feature
+FILTER_PER_FEATURE = 2 # If there is a different filter for each feature
+FILTER_SUMMARIZE = 3 # Calculate different filters per feature and summarize them at the end
+
+DEFAULT_PADDING = 1 # Filters will reduce main features dimensions
+SAME_SIZE_PADDING = 2 # Filters will keep the same size of previous layer (padding)
+CUSTOM_PADDING = 3 # User will give a custom padding dimensions
+
+class ConvolutionalLayer2 ( Layer ):
   
-  def __init__( self, filterDims, num_filters, filters = None ):
+  def __init__( self, 
+      filterDims, num_filters, filters = None, 
+      filter_mode = FILTER_GLOBAL, lr = LEARNING_RATE,
+      padding_mode = DEFAULT_PADDING, padding = None ):
     super().__init__( None )
+
+    self.learning_rate = lr
 
     self.num_filters = num_filters
     
@@ -13,53 +26,70 @@ class ConvolutionalLayer ( Layer ):
     else:
       self.filterDims = [1,1]
 
+    self.raw_filters = filters
     self.filters = []
+    self.filter_mode = filter_mode
+    self.padding_mode = padding_mode
+
+    self.padding = [ 0, 0, 0, 0] # Left, right, top and bottom padding
+    if self.padding_mode == SAME_SIZE_PADDING:
+      self.padding = [
+        self.filterDims[0] // 2, # Left padding
+        self.filterDims[0] // 2 if self.filterDims[0] % 2 == 1 else self.filterDims[0] // 2 - 1, 
+        # Right padding (ouput has same width than input)
+        self.filterDims[1] // 2, # Top padding
+        self.filterDims[1] // 2 if self.filterDims[1] % 2 == 1 else self.filterDims[1] // 2 - 1, 
+        # Bottom padding (ouput has same width than input)
+      ]
+    elif self.padding_mode == CUSTOM_PADDING and self.padding is not None:
+      self.padding = padding
     
-    # Filters array with representation of weights, later they will be asociated to links
-    # Filters will be flat arrays representing a matrix (so they are easier to access)
-
-    filter_area = self.filterDims[0] * self.filterDims[1]
+    if filter_mode == FILTER_GLOBAL:
+      # Filters can be created right now
+      # Otherwise they should be created while adding sublayer
+      filter_area = self.filterDims[0] * self.filterDims[1]
     
-    for ifilter in range( num_filters ):
-
-      filter = []
-      
-      for yfilter in range( self.filterDims[1] ):
-
-        filter_row = []
+      for ifilter in range( num_filters ):
+  
+        filter = []
         
-        for xfilter in range( self.filterDims[0] ):
-
-          new_weight = None
-
-          if filters is not None:
-            # If filters were passed, use theirs weight
-            new_weight = Weight( filters [ ifilter ] [ xfilter ] [ yfilter ] )
-          else:
-            # Else gen a random weight
-            new_weight = Weight( 
-              random() / filter_area
-            )
-            
-          filter_row.append( new_weight )
-
-        filter.append( filter_row )
-        
-      self.filters.append( filter )
+        for yfilter in range( self.filterDims[1] ):
+  
+          filter_row = []
+          
+          for xfilter in range( self.filterDims[0] ):
+  
+            new_weight = None
+  
+            if filters is not None:
+              # If filters were passed, use theirs weight
+              new_weight = Weight( filters [ ifilter ] [ xfilter ] [ yfilter ] )
+            else:
+              # Else gen a random weight
+              new_weight = Weight( 
+                random() / filter_area
+              )
+              
+            filter_row.append( new_weight )
+  
+          filter.append( filter_row )
+          
+        self.filters.append( filter )
 
   def onSublayerAdd( self, subLayer ):
 
     super().onSublayerAdd( subLayer )
+
     sublayer_dim = subLayer.dimensions
 
-    # Calculates final image dimensions
+    # Calculates final image dimensions (Without counting padding)
     x_diff = sublayer_dim [0] - self.filterDims[0] + 1
     y_diff = sublayer_dim [1] - self.filterDims[1] + 1
 
     # Updates resulting image dimensions
     self.dimensions = [ 
-      x_diff,
-      y_diff,
+      x_diff + self.padding[0] + self.padding[1],
+      y_diff + self.padding[2] + self.padding[3],
       self.num_filters * sublayer_dim [2]
     ]
 
@@ -67,42 +97,102 @@ class ConvolutionalLayer ( Layer ):
 
     sublayer_features = sublayer_dim [ 2 ]
 
-    for y_offset in range( y_diff ):
-      for x_offset in range( x_diff ):
+    # Iterators useful for filter association with nodes
+    filter_origin = lambda x: 0
+
+    if self.filter_mode == FILTER_PER_FEATURE:
+      # One different filter per feature and per filter type
+
+      # First than all, filters should be created
+      filter_area = self.filterDims[0] * self.filterDims[1]
+      
+      for isubfeat in range( sublayer_features ):
+        # i.e. filters = [ Sub1F1, Sub1F2, Sub2F1, Sub2F2, .. ]
+        for ifilter in range( self.num_filters ):
+          # Since there will be a different updatable filter per sublayer feature
+    
+          filter = []
+          
+          for yfilter in range( self.filterDims[1] ):
+    
+            filter_row = []
+            
+            for xfilter in range( self.filterDims[0] ):
+    
+              new_weight = None
+    
+              if self.raw_filters is not None:
+                # If filters were passed, use theirs weight
+    
+                new_weight = Weight( self.raw_filters [
+                  ifilter * sublayer_features + isubfeat
+                ] [ xfilter ] [ yfilter ] )
+                  
+              else:
+                # Else gen a random weight
+                
+                new_weight = Weight( 
+                  random() / filter_area
+                )
+                
+              filter_row.append( new_weight )
+    
+            filter.append( filter_row )
+            
+          self.filters.append( filter )
+
+      # gets ( ifilter, isubfeat )
+      filter_origin = lambda x : ( x[0] * sublayer_features) + x[1]
+    else:
+      # gets ( ifilter, isubfeat )
+      filter_origin = lambda x : x[0]
+    
+    for y_offset in range( - self.padding[2], y_diff + self.padding[3] ):
+      for x_offset in range( - self.padding[0], x_diff + self.padding[1] ):
         # Iterates through all possible filter overlapping
-        
+
         for isubfeat in range( sublayer_features ):
           # For each feature (R, G or B channels) create a new feature in resulting image
           for ifilter in range( self.num_filters ):
-            # Each filter should be related to its own channel or feature
-            
-            node = Node( )
+            # number of filters * number of sublayer features
+              
+              node = Node( )
+  
+              for iter_y_filter in range( self.filterDims[1] ):
+                for iter_x_filter in range( self.filterDims[0] ):
+  
+                  iter_y = iter_y_filter + y_offset
+                  iter_x = iter_x_filter + x_offset
 
-            for iter_y_filter in range( self.filterDims[1] ):
-              for iter_x_filter in range( self.filterDims[0] ):
+                  if iter_x < 0 or iter_x >= sublayer_dim[0] or iter_y < 0 or iter_y >= sublayer_dim[1]:
 
-                iter_y = iter_y_filter + y_offset
-                iter_x = iter_x_filter + x_offset
-                # Relate node to its filters-based value calculation neighbors
-                
-                weight = self.filters [ ifilter ] [ iter_x_filter ] [ iter_y_filter ]
-                
-                link_to_prev_node = Link( 
-                  # Node from previous layer
-                  subLayer.nodes[
-                      ( iter_y * sublayer_dim[0] + iter_x ) * sublayer_features + isubfeat
-                    ],
+                    # Ignore this neighbor value (result of padding)
+                    continue
 
-                  # Weight to be used, note there is a reference to this object in filters array
-                  weight
-                )
-                
-                node.addPrevNeighbors(
-                  [
-                    link_to_prev_node
-                  ]
-                )
-            self.nodes.append( node )
+
+                  # Relate node to its filters-based value calculation neighbors
+                  weight = self.filters [ 
+                    filter_origin(
+                      ( ifilter, isubfeat )
+                    ) # Gets filter info
+                  ] [ iter_x_filter ] [ iter_y_filter ]
+                  
+                  link_to_prev_node = Link( 
+                    # Node from previous layer
+                    subLayer.nodes[
+                        ( iter_y * sublayer_dim[0] + iter_x ) * sublayer_features + isubfeat
+                      ],
+  
+                    # Weight to be used, note there is a reference to this object in filters array
+                    weight
+                  )
+                  
+                  node.addPrevNeighbors(
+                    [
+                      link_to_prev_node
+                    ]
+                  )
+              self.nodes.append( node )
   
   def calculate( self ):
     for node in self.nodes :
@@ -114,7 +204,7 @@ class ConvolutionalLayer ( Layer ):
 
       node.value = dot_product
   
-  def backpropagate( self, output_gradient ):
+  def backpropagate( self, output_gradient, loss ):
 
     input_gradient = [
       0 for dummy_id in range( self.prevLayer.num_nodes )
@@ -123,7 +213,6 @@ class ConvolutionalLayer ( Layer ):
     # Copy filters
     filters_temp = []
 
-    
     for filter in self.filters:
       
       filter_temp = []
@@ -147,11 +236,16 @@ class ConvolutionalLayer ( Layer ):
       if gradient != 0:
         # Optimizing a little bit complexity...
 
+        ifilter = 0
+        
         # Filter associated to this node
-        ifilter = inode % self.num_filters
+        if self.filter_mode == FILTER_GLOBAL:
+          ifilter = inode % self.num_filters
+        elif self.filter_mode == FILTER_PER_FEATURE:
+          ifilter = inode % self.dimensions[2]
 
         # Sublayer feature this node is associated to
-        iprevFeature = inode % self.prevLayer.dimensions[2]
+        iprevFeature = ( inode // self.prevLayer.dimensions[2] ) % self.prevLayer.dimensions[2]
         
         # To which feature does this node belong to
         # Remember there are prevfeatures * filters features
@@ -161,19 +255,25 @@ class ConvolutionalLayer ( Layer ):
         # Current layer node coords
         x = (( 
           inode - ifeature ) // self.dimensions[2]
-          ) % self.dimensions[0]
+          ) % self.dimensions[0] - self.padding[0]
         y = (( 
           inode - ifeature ) // self.dimensions[2]
-          ) // self.dimensions[0] 
+          ) // self.dimensions[0] - self.padding[2]
 
         # Update filter values
+        neighbor_relative_pos = 0 # Neighbor index in node's neighbors array
+
         for yfilter in range( self.filterDims[1] ):
           for xfilter in range( self.filterDims[0] ):
 
             # Neighbor coords
             nx = x + xfilter
             ny = y + yfilter
-    
+
+            if nx < 0 or nx >= self.prevLayer.dimensions[0] or ny < 0 or ny >= self.prevLayer.dimensions[1]:
+              # Skip positions where filter was not applied due to padding
+              continue
+
             # Get neighbor index in sublayer's array
             neighbor_index = (
               self.prevLayer.dimensions[0] * ny + nx
@@ -189,8 +289,11 @@ class ConvolutionalLayer ( Layer ):
             ]
             
             associated_prev_value = node.prev_neighbors[
-              yfilter * self.filterDims[0] + xfilter
+              neighbor_relative_pos
             ].fromNode.value
+
+            # Update neighbor offset in array
+            neighbor_relative_pos += 1
 
             # Update filters
             # This is the main reason why we copied filters value at start
@@ -204,9 +307,9 @@ class ConvolutionalLayer ( Layer ):
       
             self.filters[ ifilter ][ xfilter ][ yfilter ].updateValue(
               current_filter_item_value - 
-                LEARNING_RATE * gradient * associated_prev_value
+                self.learning_rate * gradient * associated_prev_value
             )
-    return input_gradient
+    return input_gradient, loss
 
   def saveData( self, filename ):
     with open( filename, "w+") as f:

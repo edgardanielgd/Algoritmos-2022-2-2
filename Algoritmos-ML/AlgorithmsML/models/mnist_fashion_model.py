@@ -1,6 +1,6 @@
 import AlgorithmsML.figures as fg
 
-from AlgorithmsML.graph.ConvolutionLayer2 import *
+from AlgorithmsML.graph.ConvolutionLayer import *
 from AlgorithmsML.graph.InputLayer import *
 from AlgorithmsML.graph.PoolLayer import *
 from AlgorithmsML.graph.ReluLayer import *

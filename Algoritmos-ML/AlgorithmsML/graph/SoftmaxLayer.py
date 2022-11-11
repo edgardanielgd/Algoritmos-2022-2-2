@@ -74,4 +74,4 @@ class SoftmaxLayer ( Layer ):
       input_gradient.append(
         out_gradient
       )
-    return input_gradient, prob_i
+    return input_gradient, -math.log( prob_i )
