@@ -6,6 +6,7 @@ from AlgorithmsML.graph.PoolLayer import *
 from AlgorithmsML.graph.ReluLayer import *
 from AlgorithmsML.graph.SoftmaxLayer import *
 from AlgorithmsML.graph.DenseLayer import *
+from AlgorithmsML.graph.Base import *
 
 from keras.datasets import fashion_mnist # Set de numeros 28 x 28 pixeles
 
@@ -16,12 +17,12 @@ from random import shuffle
 
 class MNISTFashionModel:
 
-  def __init__(self):
+  def __init__(self, lr = LEARNING_RATE ):
     (self.images, self.labels ), (self.testImages, self.testLabels) = fashion_mnist.load_data()
     
     self.inputLayer = InputLayer( 28, 28, 1 )
     
-    self.convLayer = ConvolutionalLayer2( [3,3], 8 )
+    self.convLayer = ConvolutionalLayer2( [3,3], 8, None, FILTER_GLOBAL, lr )
     self.inputLayer.addSuperLayer( self.convLayer )
     
     self.maxPooling = PoolLayer( [2,2] ) # MaxPool
@@ -30,7 +31,7 @@ class MNISTFashionModel:
     self.relu = ReluLayer() # ReLU Layer
     self.maxPooling.addSuperLayer( self.relu )
 
-    self.dense = DenseLayer(10) # Dense Layer
+    self.dense = DenseLayer(10, lr) # Dense Layer
     self.relu.addSuperLayer( self.dense )
 
     self.softmax = SoftmaxLayer( ) # Softmax Layer
@@ -44,17 +45,28 @@ class MNISTFashionModel:
   
     indexes = [ index for index in range( ntrains ) ]
     
+    loss = []
+    acc = []
+
     for epoch_i in range( nepochs ):
   
       shuffle( indexes )  
       
+      epoch_loss = 0
+      epoch_acc = 0
+
       for i in indexes:
         self.inputLayer.getData( 
           trainImages[i],
           INPUT_MATRIX_ONE_CHANNEL
         )
-        self.inputLayer.passDataRecursive( trainLabels[i] )
-  
+
+        epoch_loss += self.inputLayer.passDataRecursive( trainLabels[i] ) [1]
+        epoch_acc += 1 if ( self.orderWinners()[0][0] == trainLabels[i] ) else 0
+
+      acc.append( epoch_acc / ntrains )
+      loss.append( epoch_loss / ntrains )
+
       print( "Ended Epoch ", epoch_i)
       
     self.convLayer.saveData(
@@ -63,6 +75,8 @@ class MNISTFashionModel:
     self.dense.saveData(
       savFiles[1]
     )
+
+    return loss, acc
 
   def load( self, loadFiles ):
     self.convLayer.loadData(

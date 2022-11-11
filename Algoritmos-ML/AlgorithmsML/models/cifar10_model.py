@@ -6,6 +6,7 @@ from AlgorithmsML.graph.PoolLayer import *
 from AlgorithmsML.graph.ReluLayer import *
 from AlgorithmsML.graph.SoftmaxLayer import *
 from AlgorithmsML.graph.DenseLayer import *
+from AlgorithmsML.graph.Base import *
 
 from keras.datasets import cifar10 # Set de numeros 28 x 28 pixeles
 
@@ -16,18 +17,18 @@ from random import shuffle
 
 class CIFARModel:
 
-  def __init__(self):
+  def __init__(self, lr = LEARNING_RATE ):
     (self.images, self.labels ), (self.testImages, self.testLabels) = cifar10.load_data()
     
     self.inputLayer = InputLayer( 32, 32, 3 )
     
-    self.convLayer = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE )
+    self.convLayer = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE, lr )
     self.inputLayer.addSuperLayer( self.convLayer )
 
     self.maxPooling = PoolLayer( [2,2] ) # MaxPool
     self.convLayer.addSuperLayer( self.maxPooling )
 
-    self.convLayer2 = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE )
+    self.convLayer2 = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE, lr )
     self.maxPooling.addSuperLayer( self.convLayer2 )
 
     self.maxPooling2 = PoolLayer( [2,2] ) # MaxPool
@@ -41,7 +42,7 @@ class CIFARModel:
     # self.convLayer3.addSuperLayer( self.convLayer4 )
     # print( self.convLayer4.num_nodes )
 
-    self.dense1 = DenseLayer( 256 )
+    self.dense1 = DenseLayer( 256, lr )
     self.maxPooling2.addSuperLayer( self.dense1 )
     print( self.dense1.num_nodes )
 
@@ -49,7 +50,7 @@ class CIFARModel:
     self.dense1.addSuperLayer( self.relu2 )
     print( self.relu2.num_nodes )
 
-    self.dense2 = DenseLayer( 10 )
+    self.dense2 = DenseLayer( 10, lr )
     self.relu2.addSuperLayer( self.dense2 )
     print( self.dense2.num_nodes )
 
@@ -61,24 +62,32 @@ class CIFARModel:
   def train( self, ntrains, nepochs, savFiles ):
 
     trainImages = self.images[:ntrains]
-    
     trainLabels = self.labels[:ntrains]
   
     indexes = [ index for index in range( ntrains ) ]
     
+    loss = []
+    acc = []
+
     for epoch_i in range( nepochs ):
   
       shuffle( indexes )  
       
+      epoch_loss = 0
+      epoch_acc = 0
+
       for i in indexes:
         self.inputLayer.getData( 
           trainImages[i],
           INPUT_MATRIX_PIXELS
         )
-        
-        # For any reason, labels come in as arrays of size 1...
-        self.inputLayer.passDataRecursive( trainLabels[i][0] )
-  
+
+        epoch_loss += self.inputLayer.passDataRecursive( trainLabels[i] )
+        epoch_acc += 1 if ( self.orderWinners()[0] == trainLabels[i] ) else 0
+
+      acc.append( epoch_acc / ntrains )
+      loss.append( epoch_loss / ntrains )
+
       print( "Ended Epoch ", epoch_i)
       
     self.convLayer.saveData(
@@ -93,6 +102,8 @@ class CIFARModel:
     self.dense2.saveData(
       savFiles[3]
     )
+
+    return loss, acc
 
   def load( self, loadFiles ):
     self.convLayer.loadData(

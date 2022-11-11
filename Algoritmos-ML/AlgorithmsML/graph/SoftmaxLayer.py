@@ -42,7 +42,7 @@ class SoftmaxLayer ( Layer ):
     self.exp_values = exp_values
     self.exp_sum = exp_sum
 
-  def backpropagate(self, label_index):
+  def backpropagate(self, label_index, _):
     # Label should be translated to an index
     prob_i = self.nodes[ label_index ].value
 
@@ -74,4 +74,4 @@ class SoftmaxLayer ( Layer ):
       input_gradient.append(
         out_gradient
       )
-    return input_gradient
+    return input_gradient, prob_i

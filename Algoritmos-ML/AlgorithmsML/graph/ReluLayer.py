@@ -23,7 +23,7 @@ class ReluLayer( Layer ):
       neighbor = self.prevLayer.nodes[ inode ]
       node.value = max( neighbor.value, 0)
 
-  def backpropagate( self, output_gradient ):
+  def backpropagate( self, output_gradient, loss ):
 
     input_gradient = []
 
@@ -36,4 +36,4 @@ class ReluLayer( Layer ):
       else:
         input_gradient.append( 0 )
         
-    return input_gradient
+    return input_gradient, loss

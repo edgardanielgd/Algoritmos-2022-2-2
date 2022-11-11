@@ -11,12 +11,13 @@ gui = GUInterface(
 
 model = MNISTFashionModel()
 
-model.load(
+print( model.train(
+  1000,3,
   [
     "testConv3.txt",
     "testDense1.txt"
   ]
-)
+) )
 
 for i in range( 1000, 2000, 10 ):
   print(

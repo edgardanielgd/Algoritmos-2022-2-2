@@ -6,8 +6,12 @@ FILTER_PER_FEATURE = 2 # If there is a different filter for each feature
 
 class ConvolutionalLayer2 ( Layer ):
   
-  def __init__( self, filterDims, num_filters, filters = None, filter_mode = FILTER_GLOBAL ):
+  def __init__( self, 
+      filterDims, num_filters, filters = None, 
+      filter_mode = FILTER_GLOBAL, lr = LEARNING_RATE ):
     super().__init__( None )
+
+    self.learning_rate = lr
 
     self.num_filters = num_filters
     
@@ -174,7 +178,7 @@ class ConvolutionalLayer2 ( Layer ):
 
       node.value = dot_product
   
-  def backpropagate( self, output_gradient ):
+  def backpropagate( self, output_gradient, loss ):
 
     input_gradient = [
       0 for dummy_id in range( self.prevLayer.num_nodes )
@@ -268,9 +272,9 @@ class ConvolutionalLayer2 ( Layer ):
       
             self.filters[ ifilter ][ xfilter ][ yfilter ].updateValue(
               current_filter_item_value - 
-                LEARNING_RATE * gradient * associated_prev_value
+                self.learning_rate * gradient * associated_prev_value
             )
-    return input_gradient
+    return input_gradient, loss
 
   def saveData( self, filename ):
     with open( filename, "w+") as f:

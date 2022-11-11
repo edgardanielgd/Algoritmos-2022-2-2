@@ -92,7 +92,7 @@ class PoolLayer ( Layer ):
   
         node.value = avg / total_neighbors
 
-  def backpropagate( self, output_gradient ):
+  def backpropagate( self, output_gradient, loss ):
 
     input_gradient = [
       0 for dummy_i in range( self.prevLayer.num_nodes )
@@ -164,4 +164,4 @@ class PoolLayer ( Layer ):
           
           input_gradient [neighbor_index] = gradient / filter_area
           
-    return input_gradient
+    return input_gradient, loss

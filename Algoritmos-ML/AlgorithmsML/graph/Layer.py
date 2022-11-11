@@ -27,22 +27,23 @@ class Layer:
     self.calculate()
 
     input_gradient = None
-    
+    loss = None
+
     if self.nextLayer is not None:
-      input_gradient = self.nextLayer.passDataRecursive( label_index )
+      input_gradient, loss = self.nextLayer.passDataRecursive( label_index )
 
     if label_index is not None:
       # Data is being trained
       if self.nextLayer is not None:
-        return self.backpropagate( input_gradient )
+        return self.backpropagate( input_gradient, loss )
       else:
-        return self.backpropagate( label_index )
+        return self.backpropagate( label_index , loss )
 
   def calculate(self):
     pass
 
-  def backpropagate(self, output_gradient ):
-    pass
+  def backpropagate(self, output_gradient, loss):
+    return output_gradient, loss
     
   def onSublayerAdd( self, subLayer ):
     self.prevLayer = subLayer

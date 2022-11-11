@@ -3,10 +3,12 @@ from AlgorithmsML.graph.Layer import *
 import math
 
 class DenseLayer ( Layer ):
-  def __init__(self, flat_count ):
+  def __init__(self, flat_count , lr = LEARNING_RATE):
     super().__init__( [
       flat_count
     ] )
+
+    self.learning_rate = lr
 
     self.biases = []
     
@@ -48,7 +50,7 @@ class DenseLayer ( Layer ):
       # Keeps values between -1 and 1
       node.value = dot_product / self.num_nodes
 
-  def backpropagate(self, output_gradient):
+  def backpropagate(self, output_gradient, loss ):
     
     input_gradient = [
         0 for i in range( self.prevLayer.num_nodes )
@@ -59,7 +61,7 @@ class DenseLayer ( Layer ):
       gradient = output_gradient [i]
 
       # Update biases
-      self.biases [i] -= LEARNING_RATE * gradient
+      self.biases [i] -= self.learning_rate * gradient
 
       node = self.nodes [ i ]
       for j in range( self.prevLayer.num_nodes ):
@@ -72,10 +74,10 @@ class DenseLayer ( Layer ):
         # Update weight 
         
         link.weight.updateValue(
-            link.weight.value - LEARNING_RATE * link.fromNode.value * gradient
+            link.weight.value - self.learning_rate * link.fromNode.value * gradient
         )
 
-    return input_gradient
+    return input_gradient, loss
         
   def saveData( self, filename ):
     with open( filename, "w+") as f:
