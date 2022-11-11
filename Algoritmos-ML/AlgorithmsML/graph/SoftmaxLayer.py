@@ -23,9 +23,9 @@ class SoftmaxLayer ( Layer ):
     exp_values = []
     exp_sum = 0
 
-    for inode in range( len( self.nodes ) ):
+    for inode in range( self.num_nodes ):
 
-      node = self.nodes[ inode ]
+      node = self.prevLayer.nodes[ inode ]
 
       exp_value = math.exp( node.value )
       

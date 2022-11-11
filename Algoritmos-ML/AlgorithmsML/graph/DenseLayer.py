@@ -45,7 +45,8 @@ class DenseLayer ( Layer ):
 
       dot_product += self.biases[ inode ]
 
-      node.value = dot_product
+      # Keeps values between -1 and 1
+      node.value = dot_product / self.num_nodes
 
   def backpropagate(self, output_gradient):
     
@@ -63,13 +64,15 @@ class DenseLayer ( Layer ):
       node = self.nodes [ i ]
       for j in range( self.prevLayer.num_nodes ):
         
+        link = node.prev_neighbors [j]
+
         # Update input gradient
-        input_gradient [j] += gradient * link.weight 
+        input_gradient [j] += gradient * link.weight.value
 
         # Update weight 
-        link = node.prev_neighbors [j]
+        
         link.weight.updateValue(
-            link.weight - LEARNING_RATE * link.fromNode * gradient
+            link.weight.value - LEARNING_RATE * link.fromNode.value * gradient
         )
 
     return input_gradient

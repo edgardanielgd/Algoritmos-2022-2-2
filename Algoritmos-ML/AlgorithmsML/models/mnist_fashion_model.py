@@ -5,6 +5,7 @@ from AlgorithmsML.graph.InputLayer import *
 from AlgorithmsML.graph.PoolLayer import *
 from AlgorithmsML.graph.ReluLayer import *
 from AlgorithmsML.graph.SoftmaxLayer import *
+from AlgorithmsML.graph.DenseLayer import *
 
 from keras.datasets import fashion_mnist # Set de numeros 28 x 28 pixeles
 
@@ -28,9 +29,12 @@ class MNISTFashionModel:
     
     self.relu = ReluLayer() # ReLU Layer
     self.maxPooling.addSuperLayer( self.relu )
-  
-    self.softmax = SoftmaxLayer( 10 ) # Softmax Layer
-    self.maxPooling.addSuperLayer( self.softmax )
+
+    self.dense = DenseLayer(10) # Dense Layer
+    self.relu.addSuperLayer( self.dense )
+
+    self.softmax = SoftmaxLayer( ) # Softmax Layer
+    self.dense.addSuperLayer( self.softmax )
   
   
   def train( self, ntrains, nepochs, savFiles ):
@@ -56,7 +60,7 @@ class MNISTFashionModel:
     self.convLayer.saveData(
       savFiles[0]
     )
-    self.softmax.saveData(
+    self.dense.saveData(
       savFiles[1]
     )
 
@@ -65,7 +69,7 @@ class MNISTFashionModel:
       loadFiles[0]
     )
     
-    self.softmax.loadData(
+    self.dense.loadData(
       loadFiles[1]
     )
 

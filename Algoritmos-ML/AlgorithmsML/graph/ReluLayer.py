@@ -18,20 +18,22 @@ class ReluLayer( Layer ):
       self.nodes.append( node )
       
   def calculate( self ):
-    for node in self.nodes:
-      neighbor = node.prev_neighbors[0]
-      node.value = max( neighbor.weight.value, 0)
+    for inode in range( self.num_nodes ):
+      node = self.nodes[ inode ]
+      neighbor = self.prevLayer.nodes[ inode ]
+      node.value = max( neighbor.value, 0)
 
   def backpropagate( self, output_gradient ):
 
     input_gradient = []
 
     for igradient in range( len( output_gradient ) ):
-      if self.nodes[ igradient ].value < 0:
-        input_gradient.append( 0 )
-      else:
+      
+      if self.nodes[ igradient ].value > 0:
         input_gradient.append(
-          output_gradient [ igradient ]
+          output_gradient[ igradient ]
         )
+      else:
+        input_gradient.append( 0 )
         
     return input_gradient

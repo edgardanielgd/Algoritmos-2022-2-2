@@ -87,19 +87,25 @@ class CIFARModel:
     self.convLayer2.saveData(
       savFiles[1]
     )
-    self.softmax.saveData(
+    self.dense1.saveData(
       savFiles[2]
+    )
+    self.dense2.saveData(
+      savFiles[3]
     )
 
   def load( self, loadFiles ):
     self.convLayer.loadData(
       loadFiles[0]
     )
-    self.convLayer.loadData(
+    self.convLayer2.loadData(
       loadFiles[1]
     )
-    self.softmax.loadData(
+    self.dense1.loadData(
       loadFiles[2]
+    )
+    self.dense2.loadData(
+      loadFiles[3]
     )
 
   def orderWinners( self ):

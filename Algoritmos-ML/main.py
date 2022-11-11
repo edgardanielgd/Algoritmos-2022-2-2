@@ -1,7 +1,7 @@
-#from AlgorithmsML.models.mnist_fashion_model import *
-#from AlgorithmsML.models.mnist_model import *
+from AlgorithmsML.models.mnist_fashion_model import *
+from AlgorithmsML.models.mnist_model import *
 from AlgorithmsML.models.cifar10_model import *
-#from AlgorithmsML.GUI.defaultGUI import *
+from AlgorithmsML.GUI.defaultGUI import *
 
 """
 gui = GUInterface(
@@ -9,20 +9,19 @@ gui = GUInterface(
 )
 """
 
-"""
-model = MNISTModel()
+model = MNISTFashionModel()
 
 model.load(
   [
-    "AlgorithmsML/convolutional2.txt",
-    "AlgorithmsML/softmax2.txt"
+    "testConv3.txt",
+    "testDense1.txt"
   ]
 )
 
-print(
-  model.testByIndex( 1057 )
-)
-"""
+for i in range( 1000, 2000, 10 ):
+  print(
+    model.testByIndex( i )
+  )
 
 """
 model = MNISTFashionModel()
@@ -39,14 +38,15 @@ print(
   )
 )
 """
-
+"""
 model = CIFARModel()
 model.train(
-  10, 3,
+  1000, 3,
   [
-    "testconv12.txt",
-    "testconv122.txt",
-    "testsoft2.txt"
+    "testconvcifar1.txt",
+    "testconvcifar2.txt",
+    "testdensecifar1.txt",
+    "testdensecifar2.txt"
   ]
 )
 
@@ -55,3 +55,4 @@ print(
     1008
   )
 )
+"""
