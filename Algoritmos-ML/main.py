@@ -9,6 +9,7 @@ gui = GUInterface(
 )
 """
 
+"""
 model = MNISTFashionModel()
 
 print( model.train(
@@ -23,7 +24,7 @@ for i in range( 1000, 2000, 10 ):
   print(
     model.testByIndex( i )
   )
-
+"""
 """
 model = MNISTFashionModel()
 model.load(
@@ -39,7 +40,7 @@ print(
   )
 )
 """
-"""
+
 model = CIFARModel()
 model.train(
   1000, 3,
@@ -56,4 +57,3 @@ print(
     1008
   )
 )
-"""

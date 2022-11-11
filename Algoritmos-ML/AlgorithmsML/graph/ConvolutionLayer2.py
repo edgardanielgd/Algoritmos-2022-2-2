@@ -7,13 +7,14 @@ FILTER_SUMMARIZE = 3 # Calculate different filters per feature and summarize the
 
 DEFAULT_PADDING = 1 # Filters will reduce main features dimensions
 SAME_SIZE_PADDING = 2 # Filters will keep the same size of previous layer (padding)
+CUSTOM_PADDING = 3 # User will give a custom padding dimensions
 
 class ConvolutionalLayer2 ( Layer ):
   
   def __init__( self, 
       filterDims, num_filters, filters = None, 
       filter_mode = FILTER_GLOBAL, lr = LEARNING_RATE,
-      padding_mode = DEFAULT_PADDING ):
+      padding_mode = DEFAULT_PADDING, padding = None ):
     super().__init__( None )
 
     self.learning_rate = lr
@@ -28,7 +29,21 @@ class ConvolutionalLayer2 ( Layer ):
     self.raw_filters = filters
     self.filters = []
     self.filter_mode = filter_mode
+    self.padding_mode = padding_mode
 
+    self.padding = [ 0, 0, 0, 0] # Left, right, top and bottom padding
+    if self.padding_mode == SAME_SIZE_PADDING:
+      self.padding = [
+        self.filterDims[0] // 2, # Left padding
+        self.filterDims[0] // 2 if self.filterDims[0] % 2 == 1 else self.filterDims[0] // 2 - 1, 
+        # Right padding (ouput has same width than input)
+        self.filterDims[1] // 2, # Top padding
+        self.filterDims[1] // 2 if self.filterDims[1] % 2 == 1 else self.filterDims[1] // 2 - 1, 
+        # Bottom padding (ouput has same width than input)
+      ]
+    elif self.padding_mode == CUSTOM_PADDING and self.padding is not None:
+      self.padding = padding
+    
     if filter_mode == FILTER_GLOBAL:
       # Filters can be created right now
       # Otherwise they should be created while adding sublayer
@@ -66,14 +81,15 @@ class ConvolutionalLayer2 ( Layer ):
     super().onSublayerAdd( subLayer )
 
     sublayer_dim = subLayer.dimensions
-    # Calculates final image dimensions
+
+    # Calculates final image dimensions (Without counting padding)
     x_diff = sublayer_dim [0] - self.filterDims[0] + 1
     y_diff = sublayer_dim [1] - self.filterDims[1] + 1
 
     # Updates resulting image dimensions
     self.dimensions = [ 
-      x_diff,
-      y_diff,
+      x_diff + self.padding[0] + self.padding[1],
+      y_diff + self.padding[2] + self.padding[3],
       self.num_filters * sublayer_dim [2]
     ]
 
@@ -131,8 +147,8 @@ class ConvolutionalLayer2 ( Layer ):
       # gets ( ifilter, isubfeat )
       filter_origin = lambda x : x[0]
     
-    for y_offset in range( y_diff ):
-      for x_offset in range( x_diff ):
+    for y_offset in range( - self.padding[2], y_diff + self.padding[3] ):
+      for x_offset in range( - self.padding[0], x_diff + self.padding[1] ):
         # Iterates through all possible filter overlapping
 
         for isubfeat in range( sublayer_features ):
@@ -147,9 +163,14 @@ class ConvolutionalLayer2 ( Layer ):
   
                   iter_y = iter_y_filter + y_offset
                   iter_x = iter_x_filter + x_offset
+
+                  if iter_x < 0 or iter_x >= sublayer_dim[0] or iter_y < 0 or iter_y >= sublayer_dim[1]:
+
+                    # Ignore this neighbor value (result of padding)
+                    continue
+
+
                   # Relate node to its filters-based value calculation neighbors
-                  
-                  
                   weight = self.filters [ 
                     filter_origin(
                       ( ifilter, isubfeat )
@@ -224,7 +245,7 @@ class ConvolutionalLayer2 ( Layer ):
           ifilter = inode % self.dimensions[2]
 
         # Sublayer feature this node is associated to
-        iprevFeature = inode % self.prevLayer.dimensions[2]
+        iprevFeature = ( inode // self.prevLayer.dimensions[2] ) % self.prevLayer.dimensions[2]
         
         # To which feature does this node belong to
         # Remember there are prevfeatures * filters features
@@ -234,19 +255,25 @@ class ConvolutionalLayer2 ( Layer ):
         # Current layer node coords
         x = (( 
           inode - ifeature ) // self.dimensions[2]
-          ) % self.dimensions[0]
+          ) % self.dimensions[0] - self.padding[0]
         y = (( 
           inode - ifeature ) // self.dimensions[2]
-          ) // self.dimensions[0] 
+          ) // self.dimensions[0] - self.padding[2]
 
         # Update filter values
+        neighbor_relative_pos = 0 # Neighbor index in node's neighbors array
+
         for yfilter in range( self.filterDims[1] ):
           for xfilter in range( self.filterDims[0] ):
 
             # Neighbor coords
             nx = x + xfilter
             ny = y + yfilter
-    
+
+            if nx < 0 or nx >= self.prevLayer.dimensions[0] or ny < 0 or ny >= self.prevLayer.dimensions[1]:
+              # Skip positions where filter was not applied due to padding
+              continue
+
             # Get neighbor index in sublayer's array
             neighbor_index = (
               self.prevLayer.dimensions[0] * ny + nx
@@ -262,8 +289,11 @@ class ConvolutionalLayer2 ( Layer ):
             ]
             
             associated_prev_value = node.prev_neighbors[
-              yfilter * self.filterDims[0] + xfilter
+              neighbor_relative_pos
             ].fromNode.value
+
+            # Update neighbor offset in array
+            neighbor_relative_pos += 1
 
             # Update filters
             # This is the main reason why we copied filters value at start

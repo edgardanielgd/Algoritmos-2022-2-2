@@ -22,14 +22,16 @@ class CIFARModel:
     
     self.inputLayer = InputLayer( 32, 32, 3 )
     
-    self.convLayer = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE, lr )
+    self.convLayer = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE, lr, SAME_SIZE_PADDING )
     self.inputLayer.addSuperLayer( self.convLayer )
+    print( len( self.convLayer.nodes ) )
 
     self.maxPooling = PoolLayer( [2,2] ) # MaxPool
     self.convLayer.addSuperLayer( self.maxPooling )
 
-    self.convLayer2 = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE, lr )
+    self.convLayer2 = ConvolutionalLayer2( [5,5], 3, None, FILTER_PER_FEATURE, lr, SAME_SIZE_PADDING )
     self.maxPooling.addSuperLayer( self.convLayer2 )
+    print( len( self.convLayer2.nodes ) )
 
     self.maxPooling2 = PoolLayer( [2,2] ) # MaxPool
     self.convLayer2.addSuperLayer( self.maxPooling2 )
@@ -81,9 +83,8 @@ class CIFARModel:
           trainImages[i],
           INPUT_MATRIX_PIXELS
         )
-
-        epoch_loss += self.inputLayer.passDataRecursive( trainLabels[i] )
-        epoch_acc += 1 if ( self.orderWinners()[0] == trainLabels[i] ) else 0
+        epoch_loss += self.inputLayer.passDataRecursive( trainLabels[i][0] )[1]
+        epoch_acc += 1 if ( self.orderWinners()[0][0] == trainLabels[i][0] ) else 0
 
       acc.append( epoch_acc / ntrains )
       loss.append( epoch_loss / ntrains )
