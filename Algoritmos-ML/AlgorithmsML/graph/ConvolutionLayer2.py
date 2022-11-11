@@ -3,12 +3,17 @@ from AlgorithmsML.graph.Layer import *
 
 FILTER_GLOBAL = 1 # If each of given filter(s) should be applied to each sublayer's feature
 FILTER_PER_FEATURE = 2 # If there is a different filter for each feature
+FILTER_SUMMARIZE = 3 # Calculate different filters per feature and summarize them at the end
+
+DEFAULT_PADDING = 1 # Filters will reduce main features dimensions
+SAME_SIZE_PADDING = 2 # Filters will keep the same size of previous layer (padding)
 
 class ConvolutionalLayer2 ( Layer ):
   
   def __init__( self, 
       filterDims, num_filters, filters = None, 
-      filter_mode = FILTER_GLOBAL, lr = LEARNING_RATE ):
+      filter_mode = FILTER_GLOBAL, lr = LEARNING_RATE,
+      padding_mode = DEFAULT_PADDING ):
     super().__init__( None )
 
     self.learning_rate = lr

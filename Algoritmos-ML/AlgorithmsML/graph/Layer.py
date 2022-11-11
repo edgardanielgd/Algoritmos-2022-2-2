@@ -30,8 +30,12 @@ class Layer:
     loss = None
 
     if self.nextLayer is not None:
-      input_gradient, loss = self.nextLayer.passDataRecursive( label_index )
-
+      upper_data = self.nextLayer.passDataRecursive( label_index )
+      
+      if upper_data is not None:
+        # It is not training
+        input_gradient , loss = upper_data
+        
     if label_index is not None:
       # Data is being trained
       if self.nextLayer is not None:
