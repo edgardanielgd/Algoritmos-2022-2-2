@@ -262,28 +262,30 @@ class GUInterface:
 
       w, h, image = fg.openImage( file )
 
+      if image is None:
+        print( "Invalid image" )
+        return
+
       self.conv_model = ConvModel(
         self.getFilter(), w, h
       )
 
       result = self.conv_model.testByData(
         image
-      )[0].resize(
-        (350, 350), Image.ANTIALIAS
-      )
+      )[0]
 
-      tk_image = ImageTk.PhotoImage(
+      # Saved due to Python garbage collector
+      self.tk_image = ImageTk.PhotoImage(
         result
       )
 
       if self.image is None:
         self.image = self.canvas.create_image(
-          25, 25, image = tk_image
+          25, 25, image = self.tk_image
         )
-        print( self.image )
       else:
-        self.canvas2.itemconfig(
-          self.image, image = tk_image
+        self.canvas.itemconfig(
+          self.image, image = self.tk_image
         )
 
   def export( self, rgb = False ):
@@ -361,6 +363,7 @@ class GUInterface:
 
   def getFilter( self ):
     index = self.filter_box.current()
+    print( index )
 
     if index == 0:
       return [[
