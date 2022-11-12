@@ -17,15 +17,21 @@ class InputLayer( Layer ):
     for dummy_i in range( self.num_nodes ):
         self.nodes.append( Node( 0 ) )
         
-  def getData( self, pixels, mode = INPUT_EMBEDED_PIXELS ):
+  def getData( self, pixels, mode = INPUT_EMBEDED_PIXELS, normalize = True ):
+
+    operate_pixel = lambda x : 0
+
+    if normalize:
+      operate_pixel = lambda x: x / 255 - 0.5
+    else:
+      operate_pixel = lambda x: x
 
     if mode == INPUT_EMBEDED_PIXELS :
       for i in range( self.dimensions[0] * self.dimensions[1] ):
         for isub in range( self.dimensions[2] ):
           self.nodes[
             self.dimensions[2] * i + isub
-          ].value = pixels[ i ][ isub ]  / 255 - 0.5
-        
+          ].value = operate_pixel( pixels[ i ][ isub ] )
     elif mode == INPUT_MATRIX_PIXELS :
       
       for irow in range( self.dimensions[1] ):
@@ -35,8 +41,8 @@ class InputLayer( Layer ):
               (
                 irow * self.dimensions[1] + icol
               ) * self.dimensions[2] + isub
-            ].value = pixels[ irow ][ icol ][ isub ] / 255 - 0.5
-            
+            ].value = operate_pixel( pixels[ irow ][ icol ][ isub ] )
+
     elif mode == INPUT_MATRIX_ONE_CHANNEL:
 
       for irow in range( self.dimensions[1] ):
@@ -46,9 +52,9 @@ class InputLayer( Layer ):
               (
                 irow * self.dimensions[1] + icol
               ) * self.dimensions[2] + isub
-            ].value = pixels[ irow ] [
+            ].value = operate_pixel( pixels[ irow ] [
               icol + isub
-            ]/ 255 - 0.5
+            ] )
 
     elif mode == INPUT_MATRIX_ONE_CHANNEL_PER_FEATURE :
       
@@ -59,4 +65,4 @@ class InputLayer( Layer ):
               (
                 irow * self.dimensions[1] + icol
               ) * self.dimensions[2] + isub
-            ].value = pixels[ isub ][ irow ][ icol ] / 255 - 0.5
+            ].value = operate_pixel( pixels[ isub ][ irow ][ icol ] )

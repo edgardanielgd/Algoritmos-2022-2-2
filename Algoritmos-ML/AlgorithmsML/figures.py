@@ -2,9 +2,12 @@ from PIL import Image
 import numpy as np
 
 def openImage( path ):
-  im = Image.open( path )
-  width, height = im.size
-  return width, height, list(im.getdata())
+  try:
+    im = Image.open( path )
+    width, height = im.size
+    return width, height, list(im.getdata())
+  except:
+    return 0,0, None
 
 def createImage( images ):
 

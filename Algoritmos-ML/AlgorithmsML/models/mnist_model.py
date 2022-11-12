@@ -62,8 +62,8 @@ class MNISTModel:
           INPUT_MATRIX_ONE_CHANNEL
         )
 
-        epoch_loss += self.inputLayer.passDataRecursive( trainLabels[i] )
-        epoch_acc += 1 if ( self.orderWinners()[0] == trainLabels[i] ) else 0
+        epoch_loss += self.inputLayer.passDataRecursive( trainLabels[i] )[1]
+        epoch_acc += 1 if ( self.orderWinners()[0][0] == trainLabels[i] ) else 0
 
       acc.append( epoch_acc / ntrains )
       loss.append( epoch_loss / ntrains )

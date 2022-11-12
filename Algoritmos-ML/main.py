@@ -4,11 +4,8 @@ from AlgorithmsML.models.cifar10_model import *
 from AlgorithmsML.GUI.defaultGUI import *
 
 """
-gui = GUInterface(
-  28, 28
-)
+gui = GUInterface()
 """
-
 """
 model = MNISTFashionModel()
 

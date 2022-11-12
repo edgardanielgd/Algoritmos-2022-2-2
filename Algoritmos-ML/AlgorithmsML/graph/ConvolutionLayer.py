@@ -15,6 +15,7 @@ class ConvolutionalLayer2 ( Layer ):
       filterDims, num_filters, filters = None, 
       filter_mode = FILTER_GLOBAL, lr = LEARNING_RATE,
       padding_mode = DEFAULT_PADDING, padding = None ):
+    
     super().__init__( None )
 
     self.learning_rate = lr
