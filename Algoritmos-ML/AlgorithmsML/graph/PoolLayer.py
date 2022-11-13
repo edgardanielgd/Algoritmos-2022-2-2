@@ -117,17 +117,17 @@ class PoolLayer ( Layer ):
 
         x = ((( 
           igradient - ifeature ) // self.dimensions[2]
-          ) % self.dimensions[0] ) * self.dimensions[0] 
+          ) % self.dimensions[0] ) * self.filterDims[0] 
         y = ((( 
           igradient - ifeature ) // self.dimensions[2]
-          ) // self.dimensions[0]  ) * self.dimensions[1]
+          ) // self.dimensions[0]  ) * self.filterDims[1]
+        
         
         # Neighbor coords
-        nx = x + ineighbor % self.dimensions[0]
-        ny = y + ineighbor // self.dimensions[0]
+        nx = x + ineighbor % self.filterDims[0]
+        ny = y + ineighbor // self.filterDims[0]
 
         # Get neighbor index in sublayer's array
-
         neighbor_index = (
           self.prevLayer.dimensions[0] * ny + nx
         ) * self.dimensions[2] + ifeature
@@ -152,16 +152,16 @@ class PoolLayer ( Layer ):
 
         x = ((( 
           igradient - ifeature ) // self.dimensions[2]
-          ) % self.dimensions[0] ) * self.dimensions[0] 
+          ) % self.dimensions[0] ) * self.filterDims[0] 
         y = ((( 
           igradient - ifeature ) // self.dimensions[2]
-          ) // self.dimensions[0]  ) * self.dimensions[1]
+          ) // self.dimensions[0]  ) * self.filterDims[1]
         
         for ineighbor in range( len( node.prev_neighbors )):
 
           # Neighbor coords
-          nx = x + ineighbor % self.dimensions[0]
-          ny = y + ineighbor // self.dimensions[0]
+          nx = x + ineighbor % self.filterDims[0]
+          ny = y + ineighbor // self.filterDims[0]
 
           # Get neighbor index in sublayer's array
 

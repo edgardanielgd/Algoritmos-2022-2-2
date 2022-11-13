@@ -1,10 +1,11 @@
 # from AlgorithmsML.models.mnist_fashion_model import *
 # #rom AlgorithmsML.models.mnist_model import *
-# from AlgorithmsML.models.cifar10_model import *
-from AlgorithmsML.GUI.defaultGUI import *
+from AlgorithmsML.models.cifar10_model import *
+# from AlgorithmsML.GUI.defaultGUI import *
 
-
+"""
 gui = GUInterface()
+"""
 
 """
 model = MNISTFashionModel()
@@ -37,7 +38,7 @@ print(
   )
 )
 """
-"""
+#"""
 model = CIFARModel()
 model.train(
   1000, 3,
@@ -49,9 +50,8 @@ model.train(
   ]
 )
 
-print(
-  model.testByIndex(
-    1008
+for i in range( 1000, 2000, 10 ):
+  print(
+    model.testByIndex( i )
   )
-)
-"""
+#"""
