@@ -32,8 +32,8 @@ class PoolLayer ( Layer ):
 
     sublayer_features = sublayer_dim [ 2 ]
 
-    for y_offset in range( 0, y_diff * 2, self.filterDims[1] ):
-      for x_offset in range( 0, x_diff * 2, self.filterDims[0] ):
+    for y_offset in range( 0, sublayer_dim [1], self.filterDims[1] ):
+      for x_offset in range( 0, sublayer_dim [0], self.filterDims[0] ):
         
         for isubfeat in range( sublayer_features ):
             
@@ -64,6 +64,9 @@ class PoolLayer ( Layer ):
     total_neighbors = self.filterDims[0] * self.filterDims[1]
 
     if self.mode: # Maximize Pool
+
+      self.propagation_log = []
+
       for node in self.nodes:
         max = float("-inf")
 
@@ -112,16 +115,15 @@ class PoolLayer ( Layer ):
         # Note it matches the upper-left value in sublayer
         # feature matrix (so this is the first neighbor)
 
-        # TODO (coordenadas erroneas x e y)
-        x = (( 
+        x = ((( 
           igradient - ifeature ) // self.dimensions[2]
-          ) % self.dimensions[0]
-        y = (( 
+          ) % self.dimensions[0] ) * self.dimensions[0] 
+        y = ((( 
           igradient - ifeature ) // self.dimensions[2]
-          ) // self.dimensions[0] 
+          ) // self.dimensions[0]  ) * self.dimensions[1]
         
         # Neighbor coords
-        nx =( x + ineighbor % self.dimensions[0] ) % self.dimensions[0]
+        nx = x + ineighbor % self.dimensions[0]
         ny = y + ineighbor // self.dimensions[0]
 
         # Get neighbor index in sublayer's array
@@ -148,19 +150,26 @@ class PoolLayer ( Layer ):
         # Note it matches the upper-left value in sublayer
         # feature matrix (so this is the first neighbor)
 
-        x = igradient % self.dimensions[1]
-        y = igradient // self.dimensions[1]
+        x = ((( 
+          igradient - ifeature ) // self.dimensions[2]
+          ) % self.dimensions[0] ) * self.dimensions[0] 
+        y = ((( 
+          igradient - ifeature ) // self.dimensions[2]
+          ) // self.dimensions[0]  ) * self.dimensions[1]
         
-        for ineighbor in range( len( self.prev_neighbors )):
+        for ineighbor in range( len( node.prev_neighbors )):
 
           # Neighbor coords
-          nx = ( x + ineighbor % self.dimensions[1] ) % self.dimensions[1]
-          ny = y + ineighbor // self.dimensions[1]
-  
+          nx = x + ineighbor % self.dimensions[0]
+          ny = y + ineighbor // self.dimensions[0]
+
           # Get neighbor index in sublayer's array
+
           neighbor_index = (
-            self.prevLayer.dimensions[1] * ny + nx
+            self.prevLayer.dimensions[0] * ny + nx
           ) * self.dimensions[2] + ifeature
+          
+          input_gradient [neighbor_index] = gradient
           
           input_gradient [neighbor_index] = gradient / filter_area
           

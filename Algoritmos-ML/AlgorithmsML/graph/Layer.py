@@ -52,7 +52,7 @@ class Layer:
   def onSublayerAdd( self, subLayer ):
     self.prevLayer = subLayer
     
-  def toImage( self, RGB_channel = True ):
+  def toImage( self, RGB_channel = True, unnormalize = False ):
     images = []
 
     features = self.dimensions[2]
@@ -75,21 +75,21 @@ class Layer:
               ( ( y * width + x ) * 3 ) * no_rgb_features + ifeature
             ]
 
-            red = node.value * 255
+            red = node.value if not unnormalize else node.value * 255
 
             # Green value
             node = self.nodes [
               ( ( y * width + x ) * 3 + 1) * no_rgb_features + ifeature
             ]
 
-            green = node.value * 255
+            green = node.value if not unnormalize else node.value * 255
 
             # Blue value
             node = self.nodes [
               ( ( y * width + x ) * 3 + 2) * no_rgb_features + ifeature
             ]
 
-            blue = node.value * 255
+            blue = node.value if not unnormalize else node.value * 255
 
             pixels_row.append( (red, green, blue) )
 

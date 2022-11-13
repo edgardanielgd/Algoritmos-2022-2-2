@@ -101,7 +101,7 @@ class ConvolutionalLayer2 ( Layer ):
       features
     ]
 
-    self.num_nodes = x_diff * y_diff * self.num_filters * sublayer_dim[2]
+    self.num_nodes = self.dimensions[0] * self.dimensions[1] * self.dimensions[2]
 
     sublayer_features = sublayer_dim [ 2 ]
 
@@ -370,7 +370,7 @@ class ConvolutionalLayer2 ( Layer ):
             ) // self.dimensions[0] - self.padding[2]
 
           for ifilter in range( self.num_filters ):
-            for iprevfeature in range( self.prevLayer.dimensions[2] ):
+            for iprevFeature in range( self.prevLayer.dimensions[2] ):
               
               # Update filter values
 

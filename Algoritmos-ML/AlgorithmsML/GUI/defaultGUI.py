@@ -62,7 +62,7 @@ class GUInterface:
       self.top, 
       height = self.canv_height, 
       width = self.canv_width,
-      bg="white"
+      bg = rgbtohex(0,0,0)
     )
   
     self.canvas.place(
@@ -279,9 +279,11 @@ class GUInterface:
         result
       )
 
+      result.save("test.png")
+
       if self.image is None:
         self.image = self.canvas.create_image(
-          25, 25, image = self.tk_image
+          100, 100, anchor = NW, image = self.tk_image
         )
       else:
         self.canvas.itemconfig(

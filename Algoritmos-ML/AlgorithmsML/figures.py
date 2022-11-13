@@ -3,7 +3,7 @@ import numpy as np
 
 def openImage( path ):
   try:
-    im = Image.open( path )
+    im = Image.open( path ).convert("RGB")
     width, height = im.size
     return width, height, list(im.getdata())
   except:

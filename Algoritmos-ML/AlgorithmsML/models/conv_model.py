@@ -4,6 +4,8 @@ from AlgorithmsML.graph.ConvolutionLayer import *
 from AlgorithmsML.graph.InputLayer import *
 from AlgorithmsML.graph.Base import *
 
+import re
+
 class ConvModel:
 
   def __init__(self, pfilter = [[
@@ -17,6 +19,8 @@ class ConvModel:
     filter = pfilter[0] if pfilter is not None else []
     filter_height = len( filter ) if filter is not None else 0
     filter_width = len( filter [0]) if filter is not None and len( filter ) > 0 else 0
+
+    print( pfilter )
 
     self.convLayer = ConvolutionalLayer2( 
       [ filter_height, filter_width ] if filter is not None and len(filter) > 0 else [],
