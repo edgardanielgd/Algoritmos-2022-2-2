@@ -169,8 +169,6 @@ class PoolLayer ( Layer ):
             self.prevLayer.dimensions[0] * ny + nx
           ) * self.dimensions[2] + ifeature
           
-          input_gradient [neighbor_index] = gradient
-          
           input_gradient [neighbor_index] = gradient / filter_area
           
     return input_gradient, loss
