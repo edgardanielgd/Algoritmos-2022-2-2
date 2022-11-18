@@ -6,6 +6,7 @@ from AlgorithmsML.graph.PoolLayer import *
 from AlgorithmsML.graph.ReluLayer import *
 from AlgorithmsML.graph.SoftmaxLayer import *
 from AlgorithmsML.graph.DenseLayer import *
+from AlgorithmsML.graph.TanhLayer import *
 from AlgorithmsML.graph.Base import *
 
 from keras.datasets import cifar10 # Set de numeros 28 x 28 pixeles
@@ -43,8 +44,8 @@ class CIFARModel:
     self.dense1 = DenseLayer( 64, lr ) 
     self.maxPooling3.addSuperLayer( self.dense1 ) # 64
 
-    self.relu2 = ReluLayer() # ReLU Layer
-    self.dense1.addSuperLayer( self.relu2 ) # 64
+    self.tanh = TanhLayer() # ReLU Layer
+    self.dense1.addSuperLayer( self.tanh ) # 64
 
     self.dense2 = DenseLayer( 10, lr )
     self.relu2.addSuperLayer( self.dense2 ) # 10

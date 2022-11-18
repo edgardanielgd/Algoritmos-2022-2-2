@@ -48,7 +48,7 @@ class ConvolutionalLayer2 ( Layer ):
     if filter_mode == FILTER_GLOBAL:
       # Filters can be created right now
       # Otherwise they should be created while adding sublayer
-      filter_area = self.filterDims[0] * self.filterDims[1]
+      self.filter_area = self.filterDims[0] * self.filterDims[1]
     
       for ifilter in range( num_filters ):
   
@@ -68,7 +68,7 @@ class ConvolutionalLayer2 ( Layer ):
             else:
               # Else gen a random weight
               new_weight = Weight( 
-                random() / filter_area
+                random()
               )
               
             filter_row.append( new_weight )
@@ -77,6 +77,9 @@ class ConvolutionalLayer2 ( Layer ):
           
         self.filters.append( filter )
 
+    elif filter_mode == FILTER_PER_FEATURE:
+      self.filter_area = self.filterDims[0] * self.filterDims[1]  
+    
   def onSublayerAdd( self, subLayer ):
 
     super().onSublayerAdd( subLayer )
@@ -110,14 +113,10 @@ class ConvolutionalLayer2 ( Layer ):
 
     if self.filter_mode == FILTER_PER_FEATURE or self.filter_mode == FILTER_SUMMARIZE:
       # One different filter per feature and per filter type
-
+      if self.filter_mode == FILTER_SUMMARIZE:
+        self.filter_area = self.filterDims[0] * self.filterDims[1] * sublayer_features
+        
       # First than all, filters should be created
-
-      filter_area = 1
-      if self.filter_mode == FILTER_PER_FEATURE:
-        filter_area = self.filterDims[0] * self.filterDims[1]
-      else:
-        filter_area = self.filterDims[0] * self.filterDims[1] * sublayer_features
       
       for isubfeat in range( sublayer_features ):
         # i.e. filters = [ Sub1F1, Sub1F2, Sub2F1, Sub2F2, .. ]
@@ -145,7 +144,7 @@ class ConvolutionalLayer2 ( Layer ):
                 # Else gen a random weight
                 
                 new_weight = Weight( 
-                  random() / filter_area
+                  random()
                 )
                 
               filter_row.append( new_weight )
@@ -233,6 +232,7 @@ class ConvolutionalLayer2 ( Layer ):
             self.nodes.append( node )
   
   def calculate( self ):
+    
     for node in self.nodes :
       dot_product = 0
       #print("NODE:\n")

@@ -28,9 +28,6 @@ class MNISTModel:
     
     self.maxPooling = PoolLayer( [2,2] ) # MaxPool
     self.convLayer.addSuperLayer( self.maxPooling )
-    
-    self.relu = ReluLayer() # ReLU Layer
-    self.maxPooling.addSuperLayer( self.relu )
 
     self.dense = DenseLayer(10, lr) # Dense Layer
     self.maxPooling.addSuperLayer( self.dense )
@@ -68,7 +65,7 @@ class MNISTModel:
       acc.append( epoch_acc / ntrains )
       loss.append( epoch_loss / ntrains )
 
-      print( "Ended Epoch ", epoch_i)
+      print( "Ended Epoch ", epoch_i, epoch_acc / ntrains, epoch_loss / ntrains )
       
     self.convLayer.saveData(
       savFiles[0]
