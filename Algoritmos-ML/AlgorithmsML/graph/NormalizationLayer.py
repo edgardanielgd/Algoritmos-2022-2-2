@@ -5,9 +5,10 @@ from random import random
 
 import math
 
-class TanhLayer( Layer ):
-  def __init__(self):
+class NormLayer( Layer ):
+  def __init__(self, lr = LEARNING_RATE ):
     super().__init__( 0 )
+    self.learning_rate = lr
     
   def onSublayerAdd( self, subLayer ):
     super().onSublayerAdd( subLayer )
@@ -71,9 +72,29 @@ class TanhLayer( Layer ):
     input_gradient = []
 
     for igradient in range( len( output_gradient ) ):
+
+      gradient = output_gradient[ igradient ]
       
-      input_gradient.append(
-        ( 1 - self.prev_results[ igradient ] ** 2 ) * output_gradient[ igradient ]
-      )
-        
+      # Update beta value
+      self.beta -= self.learning_rate * gradient
+
+      # Update (send) input_gradient
+      in_gradient = self.gamma / (self.num_nodes ** (3/2) * self.sd ** 2)
+
+      numerator = ( self.num_nodes - 1) * self.sd ** 2 * self.num_nodes ** (1/2)
+
+      thisDifference = self.means_differences[ igradient ]
+      
+      numerator -= 2 * thisDifference ** 2 * ( self.num_nodes - 1 )
+
+      for idifference_m in self.means_differences:
+        numerator += 2 * idifference_m * thisDifference
+      
+      in_gradient *= numerator
+
+      input_gradient.append( in_gradient )
+
+      # Update gamma value
+      self.gamma -= self.learning_rate * self.normalized_values[ igradient ] * gradient
+    
     return input_gradient, loss
