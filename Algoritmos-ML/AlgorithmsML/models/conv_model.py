@@ -20,8 +20,6 @@ class ConvModel:
     filter_height = len( filter ) if filter is not None else 0
     filter_width = len( filter [0]) if filter is not None and len( filter ) > 0 else 0
 
-    print( pfilter )
-
     self.convLayer = ConvolutionalLayer2( 
       [ filter_height, filter_width ] if filter is not None and len(filter) > 0 else [],
       1, pfilter, FILTER_GLOBAL, LEARNING_RATE, SAME_SIZE_PADDING )

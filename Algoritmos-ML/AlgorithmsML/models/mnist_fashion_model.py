@@ -23,29 +23,17 @@ class MNISTFashionModel:
     
     self.inputLayer = InputLayer( 28, 28, 1 )
     
-    self.convLayer = ConvolutionalLayer2( [5,5], 6, None, FILTER_PER_FEATURE, lr )
+    self.convLayer = ConvolutionalLayer2( [3,3], 8, None, FILTER_GLOBAL, lr)
     self.inputLayer.addSuperLayer( self.convLayer )
     
     self.maxPooling = PoolLayer( [2,2] ) # MaxPool
     self.convLayer.addSuperLayer( self.maxPooling )
-    
-    self.convLayer2 = ConvolutionalLayer2( [5,5], 2, None, FILTER_PER_FEATURE, lr )
-    self.maxPooling.addSuperLayer( self.convLayer2 )
-    
-    self.maxPooling2 = PoolLayer( [2,2] ) # MaxPool
-    self.convLayer2.addSuperLayer( self.maxPooling2 )
 
-    self.dense = DenseLayer(64, lr) # Dense Layer
-    self.maxPooling2.addSuperLayer( self.dense )
-
-    self.tanh = TanhLayer()
-    self.dense.addSuperLayer( self.tanh )
-
-    self.dense2 = DenseLayer(10, lr) # Dense Layer
-    self.tanh.addSuperLayer( self.dense2 )
+    self.dense = DenseLayer(10, lr) # Dense Layer
+    self.maxPooling.addSuperLayer( self.dense )
 
     self.softmax = SoftmaxLayer( ) # Softmax Layer
-    self.dense2.addSuperLayer( self.softmax )
+    self.dense.addSuperLayer( self.softmax )
   
   
   def train( self, ntrains, nepochs, savFiles ):

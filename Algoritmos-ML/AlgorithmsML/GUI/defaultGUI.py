@@ -117,9 +117,9 @@ class GUInterface:
       label = "Mnist fashion", command = lambda : self.updateGUI( MNIST_FASHION_MODE )
     )
 
-    self.typeMenu.add_command(
-      label = "Cifar 10", command = lambda : self.updateGUI( CIFAR10_MODE )
-    )
+    # self.typeMenu.add_command(
+    #  label = "Cifar 10", command = lambda : self.updateGUI( CIFAR10_MODE )
+    # )
 
     self.typeMenu.add_separator()
 
@@ -272,7 +272,7 @@ class GUInterface:
 
       result = self.conv_model.testByData(
         image
-      )[0]
+      )[0].resize((300, 300))
 
       # Saved due to Python garbage collector
       self.tk_image = ImageTk.PhotoImage(
@@ -365,7 +365,6 @@ class GUInterface:
 
   def getFilter( self ):
     index = self.filter_box.current()
-    print( index )
 
     if index == 0:
       return [[
