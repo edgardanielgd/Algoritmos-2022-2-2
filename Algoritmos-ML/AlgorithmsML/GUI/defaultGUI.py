@@ -172,7 +172,7 @@ class GUInterface:
     self.filter_box = ttk.Combobox(
       state = "readonly",
       values = [
-        "Identidad", "Bordes", "Desenfoque"
+        "Identidad", "Bordes", "Desenfoque", "Bordes2", "Agudizar", "Desenfoque Gaussiano"
       ]
     )
 
@@ -209,6 +209,9 @@ class GUInterface:
 
     x = event.x // self.rect_width
     y = event.y // self.rect_height
+
+    if x < 0 or x >= self.width or y < 0 or y >= self.height:
+      return
     
     if self.mode == MNIST_MODE or self.mode == MNIST_FASHION_MODE:
       color_value = self.scale1.get()
@@ -377,4 +380,20 @@ class GUInterface:
     elif index == 2:
       return [[
         [ 1/9, 1/9, 1/9 ], [ 1/9, 1/9, 1/9 ], [ 1/9, 1/9, 1/9 ]
+      ]]
+    elif index == 3:
+      return [[
+        [ -1, -1, -1,], [ -1, -8, -1 ], [ -1, -1, -1]
+      ]]
+    elif index == 4:
+      return [[
+        [ 0, -1, 0], [ -1, 5, -1 ], [ 0, -1, 0]
+      ]]
+    elif index == 5:
+      return [[
+        [ 1/256, 4/256, 6/256, 4/256, 1/256 ],
+        [ 4/256, 16/256, 24/256, 16/256, 4/256 ],
+        [ 6/256, 24/256, 36/256, 24/256, 6/256 ],
+        [ 4/256, 16/256, 24/256, 16/256, 4/256 ],
+        [ 1/256, 4/256, 6/256, 4/256, 1/256 ],
       ]]

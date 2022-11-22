@@ -11,6 +11,17 @@ from AlgorithmsML.graph.Base import *
 
 from keras.datasets import fashion_mnist # Set de numeros 28 x 28 pixeles
 
+# 0: T-shirt/Top
+# 1: Trouser
+# 2: Pullover
+# 3: Dress
+# 4: Coat
+# 5: Sandals
+# 6: Shirt
+# 7: Sneaker
+# 8: Bag
+# 9: Ankle boots
+
 from random import shuffle
 # from keras.dataset import fashion_mnist # Set de fashion
 
