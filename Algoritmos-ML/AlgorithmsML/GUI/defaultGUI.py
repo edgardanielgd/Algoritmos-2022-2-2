@@ -139,17 +139,18 @@ class GUInterface:
     self.values = []
 
     for i in range( self.height ):
-
+      # Y value
       row = []
       values_row = []
       
       for j in range( self.width ):
+        # X value
         row.append(
           self.canvas.create_rectangle(
-            i * self.rect_width,
-            j * self.rect_height,
-            i * self.rect_width + self.rect_width,
-            j * self.rect_height + self.rect_height,
+            j * self.rect_width,
+            i * self.rect_height,
+            (j+1) * self.rect_width,
+            (i+1) * self.rect_height,
             fill = rgbtohex( 0, 0, 0)
           )
         )
@@ -207,8 +208,8 @@ class GUInterface:
   
   def canvasClick( self, event ):
 
-    x = event.x // self.rect_width
-    y = event.y // self.rect_height
+    x = event.x // self.rect_width # Matrix col index
+    y = event.y // self.rect_height # Matrix row index
 
     if x < 0 or x >= self.width or y < 0 or y >= self.height:
       return
@@ -221,10 +222,10 @@ class GUInterface:
       )
 
       self.canvas.itemconfig(
-        self.rectangles[ x ][ y ],
+        self.rectangles[ y ][ x ],
         fill = color
       )
-      self.values[ x ][ y ] = ( color_value, color_value, color_value )
+      self.values[ y ][ x ] = ( color_value, color_value, color_value )
 
     elif self.mode == CIFAR10_MODE:
       color_r = self.scale1.get()
@@ -236,10 +237,10 @@ class GUInterface:
       )
 
       self.canvas.itemconfig(
-        self.rectangles[ x ][ y ],
+        self.rectangles[ y ][ x ],
         fill = color
       )
-      self.values[ x ][ y ] = ( color_r, color_g, color_b )
+      self.values[ y ][ x ] = ( color_r, color_g, color_b )
 
   def actionClick( self, event ):
     if self.mode == MNIST_MODE:
@@ -395,5 +396,5 @@ class GUInterface:
         [ 4/256, 16/256, 24/256, 16/256, 4/256 ],
         [ 6/256, 24/256, 36/256, 24/256, 6/256 ],
         [ 4/256, 16/256, 24/256, 16/256, 4/256 ],
-        [ 1/256, 4/256, 6/256, 4/256, 1/256 ],
+        [ 1/256, 4/256, 6/256, 4/256, 1/256 ]
       ]]

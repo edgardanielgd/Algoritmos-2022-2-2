@@ -3,9 +3,10 @@ from AlgorithmsML.models.mnist_model import *
 from AlgorithmsML.models.cifar10_model import *
 from AlgorithmsML.GUI.defaultGUI import *
 
-#"""
+#"""#
 gui = GUInterface()
 #"""
+
 
 """
 model = MNISTFashionModel()
